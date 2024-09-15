@@ -1,0 +1,6 @@
+[mysqld]
+server-id = 3
+relay-log = relay-bin
+gtid_mode = ON
+enforce_gtid_consistency = ON
+max_relay_log_size = 1024K

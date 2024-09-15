@@ -1,0 +1,7 @@
+.DS_Store
+.vscode/
+.env
+master-config/data
+slave1-config/data
+slave2-config/data
+

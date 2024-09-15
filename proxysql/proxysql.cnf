@@ -1,0 +1,88 @@
+# ProxySQL数据目录
+datadir="/var/lib/proxysql"
+
+# 管理员变量配置
+admin_variables=
+{
+    # 管理员登录凭证
+    admin_credentials="admin:admin"
+    # 管理界面监听地址和端口
+    mysql_ifaces="0.0.0.0:6032"
+}
+
+# MySQL变量配置
+mysql_variables=
+{
+    # 工作线程数
+    threads=4
+    # 最大连接数
+    max_connections=2048
+    # 查询延迟（毫秒）
+    default_query_delay=0
+    # 查询超时时间（毫秒）
+    default_query_timeout=36000000
+    # 启用压缩
+    have_compress=true
+    # 轮询超时时间（毫秒）
+    poll_timeout=2000
+    # ProxySQL监听地址和端口
+    interfaces="0.0.0.0:6033"
+    # 默认数据库
+    default_schema="information_schema"
+    # 堆栈大小
+    stacksize=1048576
+    # 模拟的MySQL服务器版本
+    server_version="8.0.39"
+    # 连接后端MySQL服务器的超时时间（毫秒）
+    connect_timeout_server=3000
+    # 监控用户名
+    monitor_username="monitor"
+    # 监控密码
+    monitor_password="monitor_password" # 请替换为您设置的监控用户密码
+    # 监控历史记录保留时间（毫秒）
+    monitor_history=60000    
+    monitor_connect_interval=200000
+    # 监控ping间隔（毫秒）
+    monitor_ping_interval=100000
+    # 监控只读间隔（毫秒）
+    monitor_read_only_interval=1500
+    # 后端MySQL服务器ping间隔（毫秒）
+    ping_interval_server_msec=120000
+    # 后端MySQL服务器ping超时时间（毫秒）
+    ping_timeout_server=500
+    # 启用命令统计
+    commands_stats=true
+    # 启用会话排序
+    sessions_sort=true
+    # 连接失败重试次数
+    connect_retries_on_failure=10
+}
+
+# MySQL服务器配置
+mysql_servers =
+(
+    # 主服务器配置
+    { address="mysql-master", port=3306, hostgroup=0, max_connections=1000 },
+    # 从服务器1配置
+    { address="mysql-slave1", port=3306, hostgroup=1, max_connections=1000 },
+    # 从服务器2配置
+    { address="mysql-slave2", port=3306, hostgroup=1, max_connections=1000 }
+)
+
+# MySQL用户配置
+mysql_users =
+(
+    # root用户配置，密码从环境变量获取
+    { username = "root", password = "secret", default_hostgroup = 0 },
+    # 监控用户配置
+    { username = "monitor", password = "monitor_password", default_hostgroup = 0 } # 请替换为您设置的监控用户密码
+)
+
+# MySQL查询规则配置
+mysql_query_rules =
+(
+    # 将包含FOR UPDATE的SELECT查询发送到主服务器
+    { rule_id=1, active=1, match_pattern="^SELECT.*FOR UPDATE", destination_hostgroup=0, apply=1 },
+    # 将其他SELECT查询发送到从服务器
+    { rule_id=2, active=1, match_pattern="^SELECT", destination_hostgroup=1, apply=1 }
+)
